@@ -6,23 +6,23 @@ import time
 import timeit
 
 class bcolors:
-		    RED='\033[31m'
-        GREEN='\033[32m'
-        ORANGE='\033[33m'
-        BLUE='\033[34m'
-        PURPLE='\033[35m'
-        CYAN='\033[36m'
-        LIGHTGREY='\033[37m'
-        DARKGREY='\033[90m'
-        LIGHTRED='\033[91m'
-        LIGHTGREEN='\033[92m'
-        YELLOW='\033[93m'
-        LIGHTBLUE='\033[94m'
-        PINK='\033[95m'
-        LIGHTCYAN='\033[96m'
-		    BOLD = '\033[1m'
-		    UNDERLINE = '\033[4m'
-		    ENDC = '\033[0m'
+	RED='\033[31m'
+  GREEN='\033[32m'
+  ORANGE='\033[33m'
+  BLUE='\033[34m'
+  PURPLE='\033[35m'
+  CYAN='\033[36m'
+  LIGHTGREY='\033[37m'
+  DARKGREY='\033[90m'
+  LIGHTRED='\033[91m'
+  LIGHTGREEN='\033[92m'
+  YELLOW='\033[93m'
+  LIGHTBLUE='\033[94m'
+  PINK='\033[95m'
+  LIGHTCYAN='\033[96m'
+	BOLD = '\033[1m'
+	UNDERLINE = '\033[4m'
+	ENDC = '\033[0m'
 
 class Maze(object):
 
@@ -33,15 +33,15 @@ class Maze(object):
 		self.show_steps = show_steps
 		self.no_print = no_print
 		self.mapping = {'[0, 0]': '  ', # Empty
-						'[0, 1]': ' .', # Floor
-						'[0, 2]': ' #', # Wall
-						'[0, 3]': ' +', # Locked Door
-						'[0, 4]': ' -', # Unlocked Door
-						'[0, 5]': ' C', # Chest
-						'[0, 6]': ' S', # Secret
-						'[0, 7]': ' T', # Trap
-						'[0, 8]': ' M', # Mob
-						}
+										'[0, 1]': ' .', # Floor
+										'[0, 2]': ' #', # Wall
+										'[0, 3]': ' +', # Locked Door
+										'[0, 4]': ' -', # Unlocked Door
+										'[0, 5]': ' C', # Chest
+										'[0, 6]': ' S', # Secret
+										'[0, 7]': ' T', # Trap
+										'[0, 8]': ' M', # Mob
+										}
 		self.previous_cells = []
 		self.visited_cells = {}
 		self.rooms = {}
@@ -59,9 +59,9 @@ class Maze(object):
 	def _chooseNeighbor(self):
 		unvisited_neighbors = []
 		neighbors = [[self.current_cell[0] - 2, self.current_cell[1], 'up'],
-					 [self.current_cell[0] + 2, self.current_cell[1], 'dn'],
-					 [self.current_cell[0], self.current_cell[1] - 2, 'lt'],
-					 [self.current_cell[0], self.current_cell[1] + 2, 'rt']]
+								 [self.current_cell[0] + 2, self.current_cell[1], 'dn'],
+								 [self.current_cell[0], self.current_cell[1] - 2, 'lt'],
+								 [self.current_cell[0], self.current_cell[1] + 2, 'rt']]
 
 		for n in neighbors:
 			if not self.visited_cells.get(tuple(n[:2])) and self.maze.get(str(n[0]), {}).get(str(n[1])):
@@ -291,15 +291,11 @@ class Maze(object):
 				#'[0, 8]': ' M', # Mob
 
 				#TODO(spencercole): Add other room related things. Secret Doors, Locked/ Unlocked.
-
-
 				if room_has_door:
 					# Rare chance to add another door to the roo,m
 					chance = 80
 				else:
 					chance = 10
-
-
 				make_door = random.randint(0, chance)
 
 				# last spot to put a door
