@@ -44,6 +44,8 @@ class Hero(object):
 class Maze(object):
 
   def __init__(self, width=None, height=None):
+    self.seed = int(time.time())
+    random.seed(self.seed)
     self.width = width * 2
     self.height = height * 2
     self.mapping = {'[0, 0]': '  ', # Empty
@@ -56,15 +58,20 @@ class Maze(object):
                     '[0, 7]': ' T', # Trap
                     '[0, 8]': ' M', # Mob
                     '[0, 9]': ' >', # Up Stairs
-                    '[0, 10]': ' <', # Down Stairs
+                    '[0, 10]': ' >', # Down Stairs
+                    '[0, 20]': ' $', # Loot: Gold
+                    '[0, 21]': ' P', # Loot: Potion
+                    '[0, 22]': ' &', # Loot: Gear
+                    '[0, 23]': ' |', # Loot: Weapon
+                    '[0, 24]': ' -', # Loot: Scroll
+                    '[0, 25]': ' ~', # Loot: Key
+                    '[0, 26]': ' %', # Loot: Bones
                     }
     self.previous_cells = []
     self.visited_cells = {}
     self.current_cell = (1, 1)
     self.visited_cells[self.current_cell] = True
     self.previous_cells.append(self.current_cell)
-    self.seed = int(time.time())
-    random.seed(self.seed)
     self.level = 1
     self.shown_tiles = []
     self.rooms = {}
@@ -172,14 +179,11 @@ class Maze(object):
     # Add doors to rooms
     # TODO(spencercole) Lights? Bold #
     for room in self.rooms:
-      # self.rooms[(room_y, room_x)] = {'width': rand_width, 'height': rand_height, 'doors': {}}
       if not self.rooms[room]['doors']:
-        walls = [
-          [0, random.randrange(1, self.rooms[room]['width'] - 1)], # Up
-          [self.rooms[room]['height'] - 1, random.randrange(1, self.rooms[room]['width'] - 1)], # Down
-          [random.randrange(1, self.rooms[room]['height'] - 1), 0], # Left
-          [random.randrange(1, self.rooms[room]['height'] - 1), self.rooms[room]['width'] - 1] # Right
-        ]
+        walls = [[0, random.randrange(1, self.rooms[room]['width'] - 1)], # Up
+                 [self.rooms[room]['height'] - 1, random.randrange(1, self.rooms[room]['width'] - 1)], # Down
+                 [random.randrange(1, self.rooms[room]['height'] - 1), 0], # Left
+                 [random.randrange(1, self.rooms[room]['height'] - 1), self.rooms[room]['width'] - 1]] # Right
 
         wall = random.choice(walls)
         door_type = random.randint(0, 100)
@@ -201,18 +205,18 @@ class Maze(object):
     # Generate Pathways (Maze Generator)
     while self.previous_cells:
       neighbor= self._chooseNeighbor()
-      # choose random neighbor thats not been visited
+      # Choose random neighbor thats not been visited
       if neighbor:
-        # remove wall between
+        # Remove the wall between
         self._removeWall(neighbor)
-        # push current cell to previous stack
+        # Push current cell to previous stack
         if self.current_cell not in self.previous_cells:
           self.previous_cells.append(self.current_cell)
         self.current_cell = tuple(neighbor[:2])
-        # make new cell the current cell and mark it as visited
+        # Make new cell the current cell and mark it as visited
         if not self.visited_cells.get(self.current_cell):
           self.visited_cells[self.current_cell] = True
-      #if no neighbor and the stack is not empty
+      # If no neighbor and the stack is not empty
       else:
         self.current_cell = self.previous_cells.pop()
 
@@ -243,57 +247,57 @@ class Maze(object):
     extended_neighbor = []
 
     # up
-    #   _ O _
+    #     O
     #  |X|O|X|
     #  |X|O|X|
     #  |X|X|X|
     #
     if cell[-1] == 'up':
-        # bottom center
+        # Bottom center
       self.setMazeCell(cell[0] + 1, cell[1], 1) # Floor
-        # center top
+        # Center top
       self.setMazeCell(self.current_cell[0] - 1, self.current_cell[1], 1) # Floor
       if self.getMazeCell(cell[0] - 3, cell[1]):
         extended_neighbor = [cell[0] - 3, cell[1]]
 
     # dn
-    #   _ _ _
+    #
     #  |X|X|X|
     #  |X|O|X|
     #  |X|O|X|
     #     O
     if cell[-1] == 'dn':
-        # top center
+        # Top center
       self.setMazeCell(cell[0] - 1, cell[1], 1) # Floor
-        # center bottom
+        # Center bottom
       self.setMazeCell(self.current_cell[0] + 1, self.current_cell[1], 1) # Floor
       if self.getMazeCell(cell[0] + 3, cell[1]):
         extended_neighbor = [cell[0] + 3, cell[1]]
 
     # lt
-    #   _ _ _
+    #
     #  |X|X|X|
     # O|O|O|X|
     #  |X|X|X|
     #
     if cell[-1] == 'lt':
-        # right center
+        # Right center
       self.setMazeCell(cell[0], cell[1] + 1, 1) # Floor
-        # center left
+        # Center left
       self.setMazeCell(self.current_cell[0], self.current_cell[1] - 1, 1) # Floor
       if self.getMazeCell(cell[0], cell[1] - 3):
         extended_neighbor = [cell[0], cell[1] - 3]
 
     # rt
-    #   _ _ _
+    #
     #  |X|X|X|
     #  |X|O|O|O
     #  |X|X|X|
     #
     if cell[-1] == 'rt':
-        # left center
+        # Left center
       self.setMazeCell(cell[0], cell[1] - 1, 1) # Floor
-        # center right
+        # Center right
       self.setMazeCell(self.current_cell[0], self.current_cell[1] + 1, 1) # Floor
       if self.getMazeCell(cell[0], cell[1] + 3):
         extended_neighbor = [cell[0], cell[1] + 3]
@@ -332,14 +336,14 @@ class Maze(object):
 
             if sides.count(1) >= 3:
               if self.getMazeCell(y, x, 1) in [3, 4, 6]: # Locked Door, Unlocked Door, Secret Door
-                # up down
+                # Check up down
                 if sides[:2] == [1, 1]:
                   if sides[2] == 1:
                     self.setMazeCell(y, x - 1, 1) # Floor
                   if sides[3] == 1:
                     self.setMazeCell(y, x + 1, 1) # Floor
 
-                # left right
+                # Check left right
                 if sides[2:] == [1, 1]:
                   if sides[0] == 1:
                     self.setMazeCell(y - 1, x, 1) # Floor
@@ -374,7 +378,6 @@ class Maze(object):
           self.exits[(coor[0] + stair_y, coor[1] + stair_x)] = stair
 
   def _placeTraps(self):
-    #self.traps = {}
     for y in range(self.height + 1):
         for x in range(self.width + 1):
           chance = 200 - self.level if self.level < 190 else 10
@@ -384,7 +387,6 @@ class Maze(object):
               self.traps[(y, x)] = True
 
   def _placeChests(self):
-    #self.chests = {}
     for y in range(self.height + 1):
         for x in range(self.width + 1):
           chance = 200 + self.level
@@ -405,8 +407,6 @@ class Maze(object):
               self.chests[(coor[0] + chest_y, coor[1] + chest_x)] = True
 
   def _placeLoot(self):
-    #self.loot = {}
-    # Gold, Potions, Gear, Scrolls, Keys, Bones
     for y in range(self.height + 1):
         for x in range(self.width + 1):
           chance = 200 + self.level
@@ -466,6 +466,7 @@ class Maze(object):
       '[0, 26]': bcolors.PURPLE + ' %' + bcolors.ENDC, # Loot: Bones
     }
 
+    # TODO(spencercole) Enable after lighting has been added.
     #if num not in self.shown_tiles:
     #  # write black tile, or dont at all.
     #  return color_mapping['[0, 0]']
@@ -476,12 +477,14 @@ class Maze(object):
 
   def _mazeString(self):
     self.maze_display_buf = ''
-
+    self.maze_text_buf = ''
     for i in sorted(self.maze.iterkeys(), key=int):
       for x in sorted(self.maze[i].iterkeys(), key=int):
         col = self.getMazeCell(i, x)
-        self.maze_display_buf += (self._translate(col))
+        self.maze_display_buf += self._translate(col)
+        self.maze_text_buf += self.mapping[str(col)]
       self.maze_display_buf += '\n'
+      self.maze_text_buf += '\n'
 
 
   def draw(self):
